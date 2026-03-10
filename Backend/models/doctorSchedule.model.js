@@ -9,8 +9,8 @@ const doctorScheduleSchema = new mongoose.Schema({
     },
     workingDays: {
         type: [String],
-        enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-        default: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+        enum: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        default: ["Mon", "Tue", "Wed", "Thu", "Fri"]
     },
     startTime: {
         type: String,

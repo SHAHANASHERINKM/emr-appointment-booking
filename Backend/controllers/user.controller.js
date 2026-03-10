@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const DoctorSchedule = require("../models/doctorSchedule.model");
+
 module.exports={
 
 
@@ -195,6 +196,64 @@ deleteUser: async (req, res) => {
         });
     }
 },
+
+
+
+getDoctorSchedule: async (req, res) => {
+    try {
+        const schedule = await DoctorSchedule.findOne({ doctor: req.params.id })
+            .populate('doctor', 'name specialization department');
+
+        if (!schedule) {
+            return res.status(404).json({
+                success: false,
+                message: "Schedule not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: schedule
+        });
+
+    } catch (error) {
+        console.error("Get schedule error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+},
+
+updateDoctorSchedule: async (req, res) => {
+    try {
+        const schedule = await DoctorSchedule.findOneAndUpdate(
+            { doctor: req.params.id },
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        if (!schedule) {
+            return res.status(404).json({
+                success: false,
+                message: "Schedule not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Schedule updated successfully",
+            data: schedule
+        });
+
+    } catch (error) {
+        console.error("Update schedule error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+}
 
 
 }
