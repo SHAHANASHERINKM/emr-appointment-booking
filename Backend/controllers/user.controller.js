@@ -1,6 +1,6 @@
 const User = require("../models/user.model");
 const DoctorSchedule = require("../models/doctorSchedule.model");
-
+const createLog = require('../utils/logger');
 module.exports={
 
 
@@ -47,7 +47,6 @@ createUser: async (req, res) => {
             phone: phone || null
         });
 
-      
         if (role === 'doctor') {
             await DoctorSchedule.create({
                 doctor: user._id,
@@ -59,6 +58,15 @@ createUser: async (req, res) => {
                 slotDuration: schedule?.slotDuration || 15
             });
         }
+
+        await createLog({
+            userId: req.user._id,
+            role: req.user.role,
+            action: 'CREATE',
+            entity: 'user',
+            description: `New ${role} created: ${name} (${email})`,
+            ipAddress: req.ip
+        });
 
         return res.status(201).json({
             success: true,
@@ -103,7 +111,7 @@ getUsers : async (req, res) => {
     }
 },
 
- updateUser : async (req, res) => {
+ updateUser: async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, specialization, department, phone, isActive } = req.body;
@@ -146,6 +154,15 @@ getUsers : async (req, res) => {
             { new: true, runValidators: true }
         ).select('-refreshTokens');
 
+        await createLog({
+            userId: req.user._id,
+            role: req.user.role,
+            action: 'UPDATE',
+            entity: 'user',
+            description: `User ${user.name} (${user.role}) updated`,
+            ipAddress: req.ip
+        });
+
         return res.status(200).json({
             success: true,
             message: "User updated successfully",
@@ -182,6 +199,15 @@ deleteUser: async (req, res) => {
 
         user.isActive = false;
         await user.save({ validateBeforeSave: false });
+
+        await createLog({
+            userId: req.user._id,
+            role: req.user.role,
+            action: 'DELETE',
+            entity: 'user',
+            description: `User ${user.name} (${user.role}) deactivated`,
+            ipAddress: req.ip
+        });
 
         return res.status(200).json({
             success: true,

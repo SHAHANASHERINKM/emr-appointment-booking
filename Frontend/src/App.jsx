@@ -11,6 +11,7 @@ import ReceptionistAppointments from "./pages/receptionist/ReceptionistAppointme
 import ReceptionistPatients from "./pages/receptionist/ReceptionistPatients";
 import Scheduler from "./pages/receptionist/Scheduler";
 import DoctorAppointments from "./pages/doctor/DoctorAppointments";
+import AdminLogs from "./pages/admin/AdminLogs";
 function App() {
   return (
     <BrowserRouter>
@@ -48,32 +49,38 @@ function App() {
           </ProtectedRoute>
         } />
 
-          <Route path="/admin/users" element={
+        <Route path="/admin/users" element={
           <ProtectedRoute allowedRoles={["super_admin"]}>
             <ManageUsers />
           </ProtectedRoute>
         } />
 
         <Route path="/receptionist/appointments" element={
-  <ProtectedRoute allowedRoles={["receptionist"]}>
-    <ReceptionistAppointments />
-  </ProtectedRoute>
-} />
-<Route path="/receptionist/patients" element={
-  <ProtectedRoute allowedRoles={["receptionist"]}>
-    <ReceptionistPatients />
-  </ProtectedRoute>
-} />
+          <ProtectedRoute allowedRoles={["receptionist"]}>
+            <ReceptionistAppointments />
+          </ProtectedRoute>
+        } />
+        <Route path="/receptionist/patients" element={
+          <ProtectedRoute allowedRoles={["receptionist"]}>
+            <ReceptionistPatients />
+          </ProtectedRoute>
+        } />
 
-<Route path="/receptionist/scheduler" element={
-  <ProtectedRoute allowedRoles={["receptionist"]}>
-    <Scheduler />
-  </ProtectedRoute>
-} />
+        <Route path="/receptionist/scheduler" element={
+          <ProtectedRoute allowedRoles={["receptionist"]}>
+            <Scheduler />
+          </ProtectedRoute>
+        } />
 
- <Route path="/doctor/appointments" element={
+        <Route path="/doctor/appointments" element={
           <ProtectedRoute allowedRoles={["doctor"]}>
             <DoctorAppointments />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/admin/logs" element={
+          <ProtectedRoute allowedRoles={["super_admin"]}>
+            <AdminLogs />
           </ProtectedRoute>
         } />
 

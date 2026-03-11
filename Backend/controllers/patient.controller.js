@@ -1,7 +1,8 @@
 const Patient = require('../models/patient.model');
+const createLog = require('../utils/logger');
 
 module.exports = {
-    createPatient: async (req, res) => {
+ createPatient: async (req, res) => {
         try {
             const { name, mobile, email, dateOfBirth, gender, address, bloodGroup } = req.body;
 
@@ -29,6 +30,15 @@ module.exports = {
                 address: address || null,
                 bloodGroup: bloodGroup || null,
                 createdBy: req.user._id
+            });
+
+            await createLog({
+                userId: req.user._id,
+                role: req.user.role,
+                action: 'CREATE',
+                entity: 'patient',
+                description: `New patient created: ${name} (${mobile})`,
+                ipAddress: req.ip
             });
 
             return res.status(201).json({
@@ -101,7 +111,7 @@ module.exports = {
         }
     },
 
-    updatePatient: async (req, res) => {
+   updatePatient: async (req, res) => {
         try {
             const patient = await Patient.findByIdAndUpdate(
                 req.params.id,
@@ -115,6 +125,15 @@ module.exports = {
                     message: "Patient not found"
                 });
             }
+
+            await createLog({
+                userId: req.user._id,
+                role: req.user.role,
+                action: 'UPDATE',
+                entity: 'patient',
+                description: `Patient ${patient.name} (${patient.patientId}) updated`,
+                ipAddress: req.ip
+            });
 
             return res.status(200).json({
                 success: true,

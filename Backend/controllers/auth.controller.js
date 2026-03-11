@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const createLog = require('../utils/logger');
 
 
 module.exports = {
@@ -19,6 +20,14 @@ module.exports = {
             const user = await User.findOne({ email }).select('+password');
 
             if (!user) {
+                await createLog({
+                    userId: null,
+                    role: null,
+                    action: 'LOGIN_FAILED',
+                    entity: 'auth',
+                    description: `Failed login attempt for email: ${email}`,
+                    ipAddress: req.ip
+                });
                 return res.status(401).json({
                     success: false,
                     message: "Invalid credentials"
@@ -26,6 +35,14 @@ module.exports = {
             }
 
             if (!user.isActive) {
+                await createLog({
+                    userId: user._id,
+                    role: user.role,
+                    action: 'LOGIN_FAILED',
+                    entity: 'auth',
+                    description: `Login attempt for deactivated account: ${email}`,
+                    ipAddress: req.ip
+                });
                 return res.status(401).json({
                     success: false,
                     message: "Your account has been deactivated. Contact admin."
@@ -34,6 +51,14 @@ module.exports = {
 
             const isPasswordMatch = await user.comparePassword(password);
             if (!isPasswordMatch) {
+                await createLog({
+                    userId: user._id,
+                    role: user.role,
+                    action: 'LOGIN_FAILED',
+                    entity: 'auth',
+                    description: `Wrong password attempt for: ${email}`,
+                    ipAddress: req.ip
+                });
                 return res.status(401).json({
                     success: false,
                     message: "Invalid credentials"
@@ -57,6 +82,15 @@ module.exports = {
                 ...user.refreshTokens.slice(0, 4)
             ];
             await user.save({ validateBeforeSave: false });
+
+            await createLog({
+                userId: user._id,
+                role: user.role,
+                action: 'LOGIN',
+                entity: 'auth',
+                description: `${user.role} ${user.email} logged in successfully`,
+                ipAddress: req.ip
+            });
 
             return res.status(200).json({
                 success: true,
@@ -162,7 +196,7 @@ module.exports = {
     },
   
 
-    logout: async (req, res) => {
+  logout: async (req, res) => {
         try {
             const { refreshToken } = req.body;
             const userId = req.user.id;
@@ -179,6 +213,15 @@ module.exports = {
                 (t) => t.token !== refreshToken
             );
             await user.save({ validateBeforeSave: false });
+
+            await createLog({
+                userId: user._id,
+                role: user.role,
+                action: 'LOGOUT',
+                entity: 'auth',
+                description: `${user.role} ${user.email} logged out`,
+                ipAddress: req.ip
+            });
 
             return res.status(200).json({
                 success: true,

@@ -7,6 +7,7 @@ import Pagination from "../../components/common/Pagination";
 import ConfirmModal from "../../components/common/ConfirmationModal";
 import TableLoader from "../../components/common/TableLoader";
 import EmptyState from "../../components/common/EmptyState";
+import MedicalSheet from "./components/MedicalSheet";
 
 const ReceptionistAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -170,6 +171,9 @@ const ReceptionistAppointments = () => {
                             <span className="material-symbols-outlined text-lg">how_to_reg</span>
                           </button>
                         )}
+                        {(apt.status === "scheduled" || apt.status === "arrived") && (
+                          <MedicalSheet appointment={apt} />
+                        )}
                         <button onClick={() => { setSelectedAppointment(apt); setEditForm({ purpose: apt.purpose || "", notes: apt.notes || "", status: apt.status }); setEditModal(true); }}
                           className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" title="Edit">
                           <span className="material-symbols-outlined text-lg">edit</span>
@@ -236,6 +240,9 @@ const ReceptionistAppointments = () => {
                       <span className="material-symbols-outlined text-base">how_to_reg</span>
                       Arrived
                     </button>
+                  )}
+                  {(apt.status === "scheduled" || apt.status === "arrived") && (
+                    <MedicalSheet appointment={apt} />
                   )}
                   <button onClick={() => { setSelectedAppointment(apt); setEditForm({ purpose: apt.purpose || "", notes: apt.notes || "", status: apt.status }); setEditModal(true); }}
                     className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg">

@@ -267,6 +267,10 @@ Base URL: `http://localhost:5000/api`
 ### Receptionist Dashboard
 ![Receptionist Dashboard](screenshots/06-receptionist-dashboard.png)
 
+### Receptionist Appointments
+![Appointments](screenshots/13-receptionist-appointments.png)
+
+
 ### Scheduler - Select Doctor & Date
 ![Scheduler Step 1](screenshots/07-scheduler-step1.png)
 
@@ -281,6 +285,9 @@ Base URL: `http://localhost:5000/api`
 
 ### Mobile View
 ![Mobile](screenshots/11-mobile-view.png)
+
+### Medical Sheet Print
+![Medical Sheet](screenshots/12-medical-sheet.png)
 
 ---
 

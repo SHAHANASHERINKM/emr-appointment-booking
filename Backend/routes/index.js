@@ -6,7 +6,7 @@ const userRoutes=require("./user.routes");
 const slotRoutes=require("./slot.routes");
 const patientRoutes=require("./patient.routes");
 const appointmentRoutes = require('./appointment.routes');
-
+const logRoutes = require('./log.routes');
 
 
 router.use("/auth",authRoutes);
@@ -14,5 +14,6 @@ router.use("/users",userRoutes);
 router.use("/slots",slotRoutes);
 router.use('/patients',patientRoutes);
 router.use('/appointments', appointmentRoutes);
+router.use('/logs', logRoutes);
 
 module.exports=router

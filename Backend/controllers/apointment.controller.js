@@ -1,5 +1,6 @@
 const Appointment = require('../models/appointment.model');
 const Patient = require('../models/patient.model');
+const createLog = require('../utils/logger');
 
 module.exports = {
     createAppointment: async (req, res) => {
@@ -17,7 +18,6 @@ module.exports = {
                 notes
             } = req.body;
 
-            // basic validation
             if (!doctorId || !date || !slotStart || !slotEnd || !patientType) {
                 return res.status(400).json({
                     success: false,
@@ -25,7 +25,6 @@ module.exports = {
                 });
             }
 
-            // prevent past date booking
             const selectedDate = new Date(date);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -36,7 +35,6 @@ module.exports = {
                 });
             }
 
-            // check slot availability
             const startOfDay = new Date(date);
             startOfDay.setHours(0, 0, 0, 0);
             const endOfDay = new Date(date);
@@ -56,7 +54,6 @@ module.exports = {
                 });
             }
 
-            // handle patient
             let patient;
 
             if (patientType === 'existing') {
@@ -66,7 +63,7 @@ module.exports = {
                         message: "patientId is required for existing patient"
                     });
                 }
-                patient = await Patient.findOne({ patientId: patientId }); // ← remove const
+                patient = await Patient.findOne({ patientId: patientId });
                 if (!patient) {
                     return res.status(404).json({
                         success: false,
@@ -81,7 +78,6 @@ module.exports = {
                     });
                 }
 
-                // check if mobile already exists
                 const existingPatient = await Patient.findOne({ mobile: patientMobile });
                 if (existingPatient) {
                     return res.status(409).json({
@@ -90,7 +86,6 @@ module.exports = {
                     });
                 }
 
-                // create new patient
                 patient = await Patient.create({
                     name: patientName,
                     mobile: patientMobile,
@@ -104,7 +99,6 @@ module.exports = {
                 });
             }
 
-            // create appointment
             const appointment = await Appointment.create({
                 patient: patient._id,
                 doctor: doctorId,
@@ -118,7 +112,15 @@ module.exports = {
                 status: 'scheduled'
             });
 
-            // populate response
+            await createLog({
+                userId: req.user._id,
+                role: req.user.role,
+                action: 'CREATE',
+                entity: 'appointment',
+                description: `Appointment created for patient ${patient.name} on ${date} at ${slotStart}`,
+                ipAddress: req.ip
+            });
+
             const populated = await Appointment.findById(appointment._id)
                 .populate('patient', 'name mobile patientId')
                 .populate('doctor', 'name specialization department')
@@ -131,7 +133,6 @@ module.exports = {
             });
 
         } catch (error) {
-            // handle simultaneous booking
             if (error.code === 11000) {
                 return res.status(409).json({
                     success: false,
@@ -262,6 +263,15 @@ module.exports = {
 
             await appointment.save();
 
+            await createLog({
+                userId: req.user._id,
+                role: req.user.role,
+                action: 'UPDATE',
+                entity: 'appointment',
+                description: `Appointment ${req.params.id} updated${status ? ` - status changed to ${status}` : ''}`,
+                ipAddress: req.ip
+            });
+
             return res.status(200).json({
                 success: true,
                 message: "Appointment updated successfully",
@@ -289,6 +299,15 @@ module.exports = {
 
             await Appointment.findByIdAndDelete(req.params.id);
 
+            await createLog({
+                userId: req.user._id,
+                role: req.user.role,
+                action: 'DELETE',
+                entity: 'appointment',
+                description: `Appointment ${req.params.id} deleted`,
+                ipAddress: req.ip
+            });
+
             return res.status(200).json({
                 success: true,
                 message: "Appointment deleted successfully"
@@ -303,7 +322,7 @@ module.exports = {
         }
     },
 
-    markArrived: async (req, res) => {
+   markArrived: async (req, res) => {
         try {
             const appointment = await Appointment.findById(req.params.id);
             if (!appointment) {
@@ -323,6 +342,15 @@ module.exports = {
             appointment.status = 'arrived';
             appointment.arrivedAt = new Date();
             await appointment.save();
+
+            await createLog({
+                userId: req.user._id,
+                role: req.user.role,
+                action: 'UPDATE',
+                entity: 'appointment',
+                description: `Patient marked as arrived for appointment ${req.params.id}`,
+                ipAddress: req.ip
+            });
 
             return res.status(200).json({
                 success: true,

@@ -8,6 +8,7 @@ const menuItems = {
     { label: "Appointments", icon: "calendar_month", path: "/admin/appointments" },
     { label: "Patients", icon: "group", path: "/admin/patients" },
     { label: "Manage Users", icon: "manage_accounts", path: "/admin/users" },
+    { label: "Audit Logs", icon: "history", path: "/admin/logs" },
   ],
   receptionist: [
     { label: "Dashboard", icon: "dashboard", path: "/receptionist/dashboard" },
